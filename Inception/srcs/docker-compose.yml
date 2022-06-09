@@ -1,0 +1,58 @@
+version: "3.3"
+
+services:
+    db:
+      image: mysql:5.7
+      volumes:
+        - mariadbvol:/var/lib/mysql
+      restart: always
+      environment:
+        MYSQL_ROOT_PASSWORD: somewordpress
+        MYSQL_DATABASE: wordpress
+        MYSQL_USER: wordpress
+        MYSQL_PASSWORD: wordpress
+      networks:
+            - monresau
+    wordpress:
+      depends_on:
+        - db
+      image: wordpress:latest
+      volumes:
+        - wordpressvol:/var/www/html
+      restart: always
+      environment:
+        WORDPRESS_DB_HOST: db:3306
+        WORDPRESS_DB_USER: wordpress
+        WORDPRESS_DB_PASSWORD: wordpress
+        WORDPRESS_DB_NAME: wordpress
+      networks:
+          - monresau
+    nginx:
+        depends_on:
+            - wordpress
+        image: nginx:alpine
+        ports:
+            - "8080:80"
+        links:
+            - wordpress
+        volumes:
+            - /media/sf_rendu/Inception/srcs/requirements/nginx/conf/:/etc/nginx/conf.d
+            - wordpressvol:/var/www/html
+        networks:
+            - monresau
+networks:
+    monresau:
+        driver: bridge
+volumes:
+    mariadbvol:
+        driver: local
+        driver_opts:
+            type: none
+            o: bind
+            device: /home/jperras/data/db
+    wordpressvol:
+        driver: local
+        driver_opts:
+            type: none
+            o: bind
+            device: /home/jperras/data/wordpress
