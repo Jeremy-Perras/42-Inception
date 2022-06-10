@@ -2,17 +2,21 @@ version: "3.3"
 
 services:
     db:
-      image: mysql:5.7
+      image: mysql:8
       volumes:
         - mariadbvol:/var/lib/mysql
       restart: always
+      env_file:
+        - .env
       environment:
-        MYSQL_ROOT_PASSWORD: somewordpress
-        MYSQL_DATABASE: wordpress
-        MYSQL_USER: wordpress
-        MYSQL_PASSWORD: wordpress
+        - MYSQL_DATABASE=${MYSQL_DATABASE}
+        - MYSQL_USER=${MYSQL_USER}
+        - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+        - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
       networks:
             - monresau
+        command:
+            - '--default-authentication-plugin=mysql_native_password'
     wordpress:
       depends_on:
         - db
@@ -21,10 +25,10 @@ services:
         - wordpressvol:/var/www/html
       restart: always
       environment:
-        WORDPRESS_DB_HOST: db:3306
-        WORDPRESS_DB_USER: wordpress
-        WORDPRESS_DB_PASSWORD: wordpress
-        WORDPRESS_DB_NAME: wordpress
+       - WORDPRESS_DB_HOST=${WORDPRESS_DB_HOST}
+       - WORDPRESS_DB_NAME=${WORDPRESS_DB_NAME}
+       - WORDPRESS_DB_USER=${WORDPRESS_DB_USER}
+       - WORDPRESS_DB_PASSWORD=${WORDPRESS_DB_PASSWORD}
       networks:
           - monresau
     nginx:
@@ -38,6 +42,8 @@ services:
         volumes:
             - /media/sf_rendu/Inception/srcs/requirements/nginx/conf/:/etc/nginx/conf.d
             - wordpressvol:/var/www/html
+            - ${NGINX_SSL_CERTS}:/etc/ssl:ro
+            - ${NGINX_LOGS}:/var/log/nginx
         networks:
             - monresau
 networks:
