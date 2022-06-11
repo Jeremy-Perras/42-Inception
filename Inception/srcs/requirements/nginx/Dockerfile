@@ -1,64 +1,23 @@
-FROM  alpine:3.12.0
+FROM	alpine:3.13
 
-RUN apk update
+RUN		apk update
+RUN		apk add --no-cache --quiet --update nginx
+#RUN		apk add --no-cache --quiet --update openssl
 
-RUN apk add nginx openrc vim openssl
+#RUN		mkdir -p /etc/nginx/ssl
+# SUBJ opts: https://www.ibm.com/docs/en/ibm-mq/7.5?topic=certificates-distinguished-names
+#RUN 	openssl req -x509 -nodes \
+#	-out /etc/nginx/ssl/jperras.42.fr.crt \
+#	-keyout /etc/nginx/ssl/jperras.42.fr.key \
+#	-subj "/C=FR/ST=GE/L=Mulhouse/O=42/OU=42/CN=jperras.42.fr/UID=jperras"
 
-RUN mkdir -p /var/www/html/
+RUN 	mkdir -p /var/run/nginx
+COPY	conf/nginx.conf /etc/nginx/conf.d/default.conf
+COPY 	./www/archi/ /var/www/
 
-RUN chown -R nginx:nginx /var/lib/nginx
+RUN		ln -sf /dev/stdout /var/log/nginx/access.log \
+			&& ln -sf /dev/stderr /var/log/nginx/error.log
 
-RUN chown -R nginx:nginx /var/www/html
+EXPOSE	80
 
-COPY ./conf/nginx.conf /etc/nginx/
-
-RUN openrc
-
-RUN touch /run/openrc/softlevel
-
-RUN mkdir -p /run/nginx
-
-COPY tools/script.sh /
-
-RUN chmod +x ./script.sh
-
-ENTRYPOINT [ "./script.sh" ]
-
-
-FROM quay.io/aptible/alpine:3.8
-
-# ruby necessary for ERB
-# curl necessary for integration tests
-RUN apk-install ruby curl
-
-# Install Nginx itself
-ADD install-nginx /tmp/
-RUN /tmp/install-nginx
-
-# Generate a 2048-bit Diffie-Hellman group in line with recommendations
-# at https://weakdh.org/sysadmin.html.
-RUN openssl dhparam -out /etc/nginx/dhparams.pem 2048
-
-ADD templates/html /usr/html/
-ADD templates/etc /etc
-ADD templates/bin /usr/local/bin
-
-# Generate default error pages
-RUN cd /usr/html \
- && ERROR_EMBED_PATH="50x.html.embed" erb error.html.erb > 50x.html \
- && ERROR_EMBED_PATH="hostname-filtering.html.embed" erb error.html.erb > hostname-filtering.html
-
-RUN mkdir /html
-ADD templates/html/acme-pending.html.erb /html/
-
-ADD test /tmp/test
-RUN apk-install haproxy openssl-dev \
- && bats /tmp/test \
- && rm -rf /tmp/nginx/* \
- && apk del haproxy openssl-dev
-
-VOLUME /etc/nginx/ssl
-
-EXPOSE 80 443 9000
-
-CMD ["/usr/local/bin/nginx-wrapper"]
+CMD	[ "nginx", "-g", "daemon off;" ]
