@@ -24,8 +24,8 @@ services:
 
   database:
     # default port 3306
-    image: mysql:8
-    #build: mariadb/
+    #image: mysql:8
+    build: mariadb/
     container_name: wp-database
     env_file:
       - .env
@@ -39,8 +39,8 @@ services:
       - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
     volumes:
       - ${MYSQL_LOCAL_HOME}:/var/lib/mysql
-    command:
-      - '--default-authentication-plugin=mysql_native_password'
+    #command:
+     #   - '--default-authentication-plugin=mysql_native_password'
 
   nginx:
     # default ports 80, 443 - expose mapping as needed to host
