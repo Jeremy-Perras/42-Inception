@@ -1,17 +1,17 @@
-
 # https://wiki.alpinelinux.org/wiki/MariaDB
 
-FROM	alpine:3.13
+FROM alpine:3.14
 
-RUN		apk update
-RUN		apk add --no-cache --quiet --update mariadb mariadb-client
+# Update package list and upgrade out-dated packages
+RUN apk update && apk upgrade && \
+    apk add --no-cache mariadb mariadb-client
+RUN mkdir -p /run/mysqld && \
+	chown -R mysql:mysql /run/mysqld
 
-RUN		mkdir -p /var/lib/mysqld /run/mysqld
-COPY	./config/create_db.sql /tmp/create_db.sql
-COPY	./scripts/entrypoint.sh ./
+# Copy scripts
+COPY ./scripts/entrypoint.sh /
 
-RUN		mariadb-install-db --datadir=/var/lib/mysql \
-			--auth-root-authentication-method=normal
-RUN		chown -R mysql:mysql /var/lib/mysql /run/mysqld
-
-ENTRYPOINT [ "sh", "entrypoint.sh" ]
+# Start initialization script
+# [,] exec form for perfs
+# ENTRYPOINT because CMD can be overrided, and we don't want it. Well, entrypoint can too, but less easily
+ENTRYPOINT ["sh", "/entrypoint.sh"]
