@@ -15,7 +15,7 @@ services:
     depends_on:
       - database
     volumes:
-      - wordpress-volume:/var/www/wordpress
+      - ${WORDPRESS_LOCAL_HOME}:/var/www/html
       - ${WORDPRESS_UPLOADS_CONFIG}:/usr/local/etc/php/conf.d/uploads.ini
       # - /path/to/repo/myTheme/:/var/www/html/wp-content/themes/myTheme
     environment:
@@ -62,7 +62,7 @@ services:
       - "8080:80"    # http
       - "443:443"   # https
     volumes:
-      - wordpress-volume:/var/www/html
+      - ${WORDPRESS_LOCAL_HOME}:/var/www/html
       - ${NGINX_CONF}:/etc/nginx/conf.d/default.conf
       - ${NGINX_SSL_CERTS}:/etc/ssl:ro
       - ${NGINX_LOGS}:/var/log/nginx
