@@ -6,7 +6,7 @@ DELETE FROM mysql.user WHERE User='root' AND Host NOT IN ('localhost', '127.0.0.
 
 
 --  set root pwd
-SET PASSWORD FOR 'root'@'localhost' = PASSWORD('$MYSQL_ROOT_PASSWORD');
+SET PASSWORD FOR 'root'@'localhost' = PASSWORD('$MYSQL_PASSWORD');
 
 --  create wordpress assets
 CREATE DATABASE $MYSQL_DATABASE;
