@@ -26,6 +26,7 @@ RUN userdel -f www-data && useradd -u 82 www-data
 COPY ./tools/start.sh /start.sh
 COPY ./conf/www.conf /etc/php/${PHP_VERSION}/fpm/pool.d/
 COPY ./conf/php-fpm.conf /etc/php/${PHP_VERSION}/fpm/
+#COPY ./conf/wp-config.php /var/www/html/wordpress/wp-config.php
 
 # ! Install wp-cli, using it to build, configure wordpress
 RUN wget https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar && \

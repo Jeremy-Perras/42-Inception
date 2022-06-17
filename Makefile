@@ -10,6 +10,7 @@ $(NAME): all
 init:
 		sudo mkdir -p $(DATA_FOLDER)/$(WP_FOLDER)
 		sudo mkdir -p $(DATA_FOLDER)/$(DB_FOLDER)
+		sudo mkdir -p $(DATA_FOLDER)/$(LG_FOLDER)
 
 info:
 	docker ps -as; \
